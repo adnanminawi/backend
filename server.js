@@ -3,10 +3,6 @@ import mysql from "mysql";
 import cors from "cors";
 import multer from "multer";
 import path from "path";
-import fs from "fs";
-import dotenv from "dotenv";
-
-dotenv.config(); // Load env variables
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -19,7 +15,7 @@ app.get('/', (req, res) => {
   res.send('Backend is running.');
 });
 
-// Create MySQL connection using environment variables
+// MySQL connection using Railway environment variables
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -48,6 +44,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// --- API routes ---
 // GET all rentals
 app.get("/rentals", (req, res) => {
   const q = `SELECT 
@@ -79,9 +76,8 @@ app.get("/cars", (req, res) => {
   db.query(q, (err, data) => {
     if (err) return res.json(err);
 
+    const backendUrl = process.env.BACKEND_URL || `http://localhost:${port}`;
     for (const d of data) {
-      // Use Railway backend URL when deployed
-      const backendUrl = process.env.BACKEND_URL || "http://localhost:5001";
       d.img = `${backendUrl}/images/${d.img}`;
     }
 
